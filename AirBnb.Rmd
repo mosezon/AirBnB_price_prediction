@@ -48,7 +48,10 @@ knit_hooks$set(output = function(x, options) {
 ```
 
 
-## R Project
+# R Project
+
+
+## Introduction
 
 Short description about members 
 
@@ -91,7 +94,7 @@ library(performance)
 
 Add a short description about what data are and where come from
 
-```{r cities_groups, echo=FALSE, message=FALSE, warning=FALSE}
+```{r cities_groups, message=FALSE, warning=FALSE}
 
 listings <- vroom("http://data.insideairbnb.com/italy/emilia-romagna/bologna/2022-06-11/data/listings.csv.gz")%>% 
       #drop variables that contain 'scrape' in their column name
@@ -110,20 +113,20 @@ listings <- listings %>%
 ```
 How many variables/columns? 
 
-```{r EDA_nVariables, echo=FALSE}
+```{r EDA_nVariables}
 
 ncol(listings)
 
 ```
 
 How many rows/observations?
-```{r EDA_nObservations, echo=FALSE}
+```{r EDA_nObservations}
 
 nrow(listings)
 
 ```
 Which are categorical or factor variables (numeric or character variables with variables that have a fixed and known set of possible values?
-```{r EDA_exploreVariables, echo=FALSE}
+```{r EDA_exploreVariables}
 
 maxElements = 10
 
@@ -144,7 +147,7 @@ for(i in 1:ncol(listings)) {       # for-loop over columns
 
 What are the correlations between variables? Does each scatterplot support a linear relationship between variables? Do any of the correlations appear to be conditional on the value of a categorical variable?
 
-```{r EDA_correlations, echo=FALSE}
+```{r EDA_correlations}
 
 listings %>%
   filter(number_of_reviews>50) %>% 
@@ -222,4 +225,24 @@ listings %>%
 ```
 
 
+## Handling missing values (NAs)
 
+Airbnb is most commonly used for travel purposes, i.e., as an alternative to traditional hotels. We only want to include listings in our regression analysis that are intended for travel purposes:
+
+What are the most common values for the variable minimum_nights?
+
+```{r commonValueforMinimumNights}
+
+listings %>% 
+  filter(number_of_reviews>50 & minimum_nights < 50 & price < 250) %>% 
+  select(minimum_nights,price,review_scores_rating, accommodates, availability_365, instant_bookable) %>% 
+  ggpairs(alpha = 0.3)
+
+
+```
+
+Is ther any value among the common values that stands out?
+
+What is the likely intended purpose for Airbnb listings with this seemingly unusual value for minimum_nights?
+
+Filter the airbnb data so that it only includes observations with minimum_nights <= 4
