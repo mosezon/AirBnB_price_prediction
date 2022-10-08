@@ -229,20 +229,67 @@ listings %>%
 
 Airbnb is most commonly used for travel purposes, i.e., as an alternative to traditional hotels. We only want to include listings in our regression analysis that are intended for travel purposes:
 
+
+Next, we look at the variable property_type. We can use the count function to determine how many categories there are their frequency. What are the top 4 most common property types? What proportion of the total listings do they make up?
+```{r property_type_analysis}
+listings %>% 
+  group_by(property_type) %>% 
+  summarise(countType = count(property_type)) %>%
+  mutate(percentage = countType*100/sum(countType)) %>% 
+  slice_max(order_by = countType, n=4)
+
+```
+Since the vast majority of the observations in the data are one of the top four or five property types, we would like to create a simplified version of property_type variable that has 5 categories: the top four categories and Other. Fill in the code below to create prop_type_simplified.
+
+```{r prop_type_simplified}
+
+listings <- listings %>%
+  mutate(prop_type_simplified = case_when(
+    property_type %in% c("Entire rental unit","Entire condo", "Private room in rental unit","Private room in condo") ~ property_type, 
+    TRUE ~ "Other"
+  ))
+
+listings %>%
+  count(property_type, prop_type_simplified) %>%
+  arrange(desc(n))  
+```
+
+
+
 What are the most common values for the variable minimum_nights?
 
 ```{r commonValueforMinimumNights}
 
 listings %>% 
-  filter(number_of_reviews>50 & minimum_nights < 50 & price < 250) %>% 
-  select(minimum_nights,price,review_scores_rating, accommodates, availability_365, instant_bookable) %>% 
+  filter(number_of_reviews>50 & minimum_nights < 4 & price < 250) %>% 
+  select(minimum_nights,price,review_scores_rating, accommodates, availability_365,reviews_per_month) %>%
   ggpairs(alpha = 0.3)
-
 
 ```
 
 Is ther any value among the common values that stands out?
 
+
 What is the likely intended purpose for Airbnb listings with this seemingly unusual value for minimum_nights?
 
+
 Filter the airbnb data so that it only includes observations with minimum_nights <= 4
+
+
+
+## Mapping
+Visualisations of feature distributions and their relations are key to understanding a data set, and they can open up new lines of exploration. While we do not have time to go into all the wonderful geospatial visualisations one can do with R, you can use the following code to start with a map of your city, and overlay all AirBnB coordinates to get an overview of the spatial distribution of AirBnB rentals. For this visualisation we use the leaflet package, which includes a variety of tools for interactive maps, so you can easily zoom in-out, click on a point to get the actual AirBnB listing for that specific point, etc.
+
+```{r mapping}
+leaflet(data = filter(listings, minimum_nights <= 4)) %>% 
+  addProviderTiles("OpenStreetMap.Mapnik") %>% 
+  addCircleMarkers(lng = ~longitude, 
+                   lat = ~latitude, 
+                   radius = 2, 
+                   fillColor = "blue", 
+                   fillOpacity = 0.4, 
+                   popup = ~listing_url,
+                   label = ~property_type)
+```
+
+## Regression Analysis
