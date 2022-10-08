@@ -12,7 +12,7 @@ output:
     number_sections: yes
     code_folding: show
   pdf_document:
-    toc: no
+    toc: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -64,8 +64,8 @@ Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor inc
 #### Daniel Mota De Carvalho
 Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
-#### Virginia Mendonça
-Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+#### Virgínia Mendonça
+I am Brazilian and have been living in EU the latest 10 years. I work with database management systems, most experienced in Sql Server and Postgres. Now adventuring myself in the data management world!
 
 
 ```{r load-libraries, echo=FALSE}
