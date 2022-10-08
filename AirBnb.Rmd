@@ -88,6 +88,7 @@ library(viridis)
 library(vroom)
 library(kableExtra)
 library(performance)
+library(patchwork)
 ```
 
 ## Exploratory Data Analysis
@@ -293,3 +294,61 @@ leaflet(data = filter(listings, minimum_nights <= 4)) %>%
 ```
 
 ## Regression Analysis
+
+For the target variable Y, we will use the cost for two people to stay at an Airbnb location for four (4) nights.
+
+Create a new variable called price_4_nights that uses price, and accomodares to calculate the total cost for two people to stay at the Airbnb property for 4 nights. This is the variable Y we want to explain.
+```{r createprice_4_nights}
+listings <- listings %>% 
+  mutate(price_4_nights = price*4)
+
+
+```
+
+Use histograms or density plots to examine the distributions of price_4_nights and log(price_4_nights). Which variable should you use for the regression model? Why?
+
+```{r histrogramPrice4Night}
+g1 <- listings %>% 
+  filter(accommodates>1, price<250) %>% 
+  ggplot(aes(price_4_nights)) + 
+  geom_histogram(binwidth = 10) +
+  labs(title = "Distribution of price of 4 nights", 
+        subtitle = "", 
+        caption = "Source: http://data.insideairbnb.com/italy/emilia-romagna/bologna/2022-06-11/data/listings.csv.gz") + 
+  theme(plot.caption = element_text(hjust= 1), 
+        axis.title.x = element_blank(), 
+        axis.title.y = element_blank())
+
+g2 <- listings %>% 
+  filter(accommodates>1, price<250) %>% 
+  ggplot(aes(log(price_4_nights))) + 
+  geom_histogram(binwidth = 10) +
+  labs(title = "Distribution of log(price) of 4 nights", 
+        subtitle = "", 
+        caption = "Source: http://data.insideairbnb.com/italy/emilia-romagna/bologna/2022-06-11/data/listings.csv.gz") + 
+  theme(plot.caption = element_text(hjust= 1), 
+        axis.title.x = element_blank(), 
+        axis.title.y = element_blank())
+  
+g1+g2
+```
+
+
+Fit a regression model called model1 with the following explanatory variables: prop_type_simplified, number_of_reviews, and review_scores_rating.
+
+```{r regressionmodel1}
+
+#skim(listings)
+
+#model1 <- listings %>% 
+#  drop_na(review_scores_rating) %>% 
+#  lm(prop_type_simplified ~ number_of_reviews + review_scores_rating, data = listings)
+  
+#msummary(model1)
+
+```
+
+
+Interpret the coefficient review_scores_rating in terms of price_4_nights.
+Interpret the coefficient of prop_type_simplified in terms of price_4_nights.
+We want to determine if room_type is a significant predictor of the cost for 4 nights, given everything else in the model. Fit a regression model called model2 that includes all of the explanantory variables in model1 plus room_type.
