@@ -59,7 +59,7 @@ Short description about members
 Born in Bologna in 1988 I'm a RFID Specialist in Lab ID Srl
 
 #### Federica Mori
-Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+Born in Mantova in 1986, I'm an Innovation Manager at Confindustria Emilia-Romagna Ricerca. 
 
 #### Daniel Mota De Carvalho
 Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
@@ -126,14 +126,30 @@ How many rows/observations?
 nrow(listings)
 
 ```
-Which are categorical or factor variables (numeric or character variables with variables that have a fixed and known set of possible values?
+Which variables are numbers?
+
+```{r EDA_numbers}
+
+print(paste("List of the variables that are numbers"))
+
+i=1
+for(i in 1:ncol(listings)) {       # for-loop over columns
+   if (is.numeric(listings[[i]]) == TRUE)
+   {
+    print(colnames(listings[i]))
+  }
+ }
+
+```
+
+Which are categorical or factor variables (numeric or character variables with variables that have a fixed and known set of possible values)?
 ```{r EDA_exploreVariables}
 
 maxElements = 10
 
 result <- apply(listings, 2, function(x) length(unique(x)))
 
-print(paste("List of the variables with less than ",maxElements))
+print(paste("List of the variables with less than ",maxElements, "elements"))
 
 for(i in 1:ncol(listings)) {       # for-loop over columns
  if(result[colnames(listings)[i]] < maxElements)
@@ -142,13 +158,21 @@ for(i in 1:ncol(listings)) {       # for-loop over columns
  }
 }
 
-
-
 ```
 
 What are the correlations between variables? Does each scatterplot support a linear relationship between variables? Do any of the correlations appear to be conditional on the value of a categorical variable?
 
 ```{r EDA_correlations}
+
+# finding significant correlations - to be completed
+# listings %>% 
+#   filter(number_of_reviews>50 & minimum_nights < 4 & price < 250) %>% 
+#   select(minimum_nights,price,review_scores_rating, accommodates, availability_365,reviews_per_month) %>%
+#   ggpairs(alpha = 0.3)
+# listings%>%
+#   select(price, accommodates, bedrooms, beds, availability_30, availability_60, availability_90, review_scores_rating, review_scores_accuracy, review_scores_communication, review_scores_cleanliness, review_scores_value, calculated_host_listings_count, calculated_host_listings_count_entire_homes)%>%
+#   ggpairs(alpha = 0.3)
+
 
 listings %>%
   filter(number_of_reviews>50) %>% 
@@ -256,25 +280,42 @@ listings %>%
 ```
 
 
-
 What are the most common values for the variable minimum_nights?
 
 ```{r commonValueforMinimumNights}
 
-listings %>% 
-  filter(number_of_reviews>50 & minimum_nights < 4 & price < 250) %>% 
-  select(minimum_nights,price,review_scores_rating, accommodates, availability_365,reviews_per_month) %>%
-  ggpairs(alpha = 0.3)
+listings%>%
+  group_by(minimum_nights)%>%
+  summarise(tot_min_night=count(minimum_nights))%>%
+  mutate(percentage = tot_min_night*100/sum(tot_min_night))%>%  
+  arrange(desc(percentage))%>%
+  slice_head(n=3)
 
 ```
 
-Is ther any value among the common values that stands out?
+Is there any value among the common values that stands out? What is the likely intended purpose for Airbnb listings with this seemingly unusual value for minimum_nights?
 
+```{r lesscommonValueforMinimumNights}
 
-What is the likely intended purpose for Airbnb listings with this seemingly unusual value for minimum_nights?
+listings%>%
+  group_by(minimum_nights)%>%
+  summarise(tot_min_night=count(minimum_nights))%>%
+  mutate(percentage = tot_min_night*100/sum(tot_min_night))%>%  
+  arrange(desc(minimum_nights))%>%
+  slice_head(n=10)
 
+```
+
+*There are 33 solutions with a minimum nights of at least 30 days therefore comparable to rentals*
 
 Filter the airbnb data so that it only includes observations with minimum_nights <= 4
+
+```{r min_night_4}
+
+listings<- listings%>%
+  filter(minimum_nights<=4)
+
+```
 
 
 
