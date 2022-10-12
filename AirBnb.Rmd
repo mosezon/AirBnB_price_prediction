@@ -1,6 +1,6 @@
 ---
 title: "Fundamentals of Data Analysis"
-author: "Final Group Project"
+author: "Final Group Project - Group 4"
 date: "30 Sep 2022"
 output:
   html_document:
@@ -59,7 +59,7 @@ Short description about members
 Born in Bologna in 1988 I'm a RFID Specialist in Lab ID Srl
 
 #### Federica Mori
-Born in Mantova in 1986, I'm an Innovation Manager at Confindustria Emilia-Romagna Ricerca. 
+I am Italian, born in Mantova in 1986. I've working within innovation for more than 10 years. Now I'm an Innovation Manager at Confindustria Emilia-Romagna Ricerca. 
 
 #### Daniel Mota De Carvalho
 Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
@@ -165,13 +165,37 @@ What are the correlations between variables? Does each scatterplot support a lin
 ```{r EDA_correlations}
 
 # finding significant correlations - to be completed
-# listings %>% 
-#   filter(number_of_reviews>50 & minimum_nights < 4 & price < 250) %>% 
+# listings %>%
+#   filter(number_of_reviews>50 & minimum_nights < 4 & price < 250) %>%
 #   select(minimum_nights,price,review_scores_rating, accommodates, availability_365,reviews_per_month) %>%
 #   ggpairs(alpha = 0.3)
-# listings%>%
-#   select(price, accommodates, bedrooms, beds, availability_30, availability_60, availability_90, review_scores_rating, review_scores_accuracy, review_scores_communication, review_scores_cleanliness, review_scores_value, calculated_host_listings_count, calculated_host_listings_count_entire_homes)%>%
-#   ggpairs(alpha = 0.3)
+
+
+# exploring correlations with type of hosts 
+listings%>%
+  select(price, host_response_time, host_is_superhost, calculated_host_listings_count, calculated_host_listings_count_entire_homes)%>%
+  ggpairs(alpha = 0.3)
+
+# exploring correlations with parameters of house 
+listings%>%
+  select(price, accommodates, bedrooms, beds, room_type)%>%
+  ggpairs(alpha = 0.3)
+
+#exploring correlations with location
+listings%>%
+  select(price, neighbourhood_cleansed, latitude, longitude)%>%
+  ggpairs(alpha = 0.3)
+
+
+# exploring correlations with availability
+listings%>%
+  select(price, minimum_nights, maximum_nights, availability_30, availability_60, availability_90)%>%
+  ggpairs(alpha = 0.3)
+
+# exploring correlations with reviews 
+listings%>%
+  select(price, number_of_reviews, review_scores_rating, review_scores_accuracy, review_scores_cleanliness, review_scores_checkin, review_scores_communication, review_scores_value)%>%
+  ggpairs(alpha = 0.3)
 
 
 listings %>%
@@ -397,8 +421,8 @@ msummary(model1a)
 ```
 
 *t-stat value is greater than the 2% and p-value is less than 5% then we can 
-reject the hypothesis of no difference between variables. An increase 
-in the price, decrease the review score rating by 352.7.*
+reject the hypothesis of no difference between variables. An extra review score
+rating decrease the price by 352.7.*
 *The total variability explained by this model is very low (only 0.5%) then 
 scores of reviews is not a significant predictor for cost for 4 nights.*
 
@@ -418,10 +442,8 @@ then we can reject the hypothesis of no difference between variables. For
 the other types of property (Entire rental unit and Other), t-stat value is
 lower than the 2% then we can accept the hypothesis of no difference between 
 variables.*
-*In addition, an increase in the price decrease the value of property type 
-(i.e., Entire rental of unit of 6.69, Other of 88.93, Private room in 
-condo of 377.18, Private room in rental unit of 365.08) respect to the type 
-of Tiny room*
+*In addition, an additional unit of some property type decrease the price (i.e., Entire rental of unit by 6.69, Other by 88.93, Private room in 
+condo by 377.18, Private room in rental unit by 365.08) respect to Tiny room type*
 *The total variability explained by this model is very low (only 0.4%) then 
 property types is not a significant predictor for cost for 4 nights.*
 
@@ -450,19 +472,138 @@ than the 2% and p-value is less than 5% then we can reject the hypothesis of
 no difference between variables. For the other type of room (Shared room), 
 t-stat value is lower than the 2% then we can accept the hypothesis of no 
 difference between variables.*
-*In addition, an increase in the price increase the value of one the room type 
-(i.e., Hotel room of 1022.9) and decrease the value of other room types
-(i.e. Private room of 315.6 and Shared room of 423.4) respect to the type 
-of Tiny room*
+*In addition, an additional unit of some type of room increase the price 
+(i.e., Hotel room by 1022.9) or decrease the price (i.e. Private room of 
+315.6 and Shared room of 423.4) respect to the type of Tiny room*
 *The total variability explained by this model is very low (only 0.8%) then 
 property room is not a significant predictor for cost for 4 nights.*
 
 
 ## Further variables/questions to explore on our own
+
 Our dataset has many more variables, so here are some ideas on how you can extend your analysis
 
 Are the number of bathrooms, bedrooms, beds, or size of the house (accomodates) significant predictors of price_4_nights?
+
+```{r regressionmodel3a_bathrooms}
+
+listings<-listings%>%
+  separate(bathrooms_text,
+           into = c("n_bathrooms", "text_bathrooms"),
+           sep = 3)
+
+listings<-listings%>%
+  mutate(n_bathrooms=ifelse(test=n_bathrooms=="Hal",
+                            yes="0.5",
+                            no=n_bathrooms),
+         n_bathrooms=ifelse(test=n_bathrooms=="Pri",
+                            yes="0.5",
+                            no=n_bathrooms),
+  n_bathrooms = parse_number(n_bathrooms))
+
+model3a <- lm(price_4_nights ~ n_bathrooms, data = listings)
+msummary(model3a)
+
+```
+
+*t-stat value is greater than the 2% and p-value is less than 5% then we can 
+reject the hypothesis of no difference between variables. An extra bathroom
+increase the price by 185.9.*
+*The total variability explained by this model is very low (only 0.2%) then 
+numbers of bathrooms are not a significant predictor for cost for 4 nights.*
+
+```{r regressionmodel3b_bedrooms}
+
+model3b <- lm(price_4_nights ~ bedrooms, data = listings)
+msummary(model3b)
+
+```
+
+*t-stat value is greater than the 2% and p-value is less than 5% then we can 
+reject the hypothesis of no difference between variables. An extra bedroom
+increase the price by 253.4.*
+*The total variability explained by this model is very low (only 0.8%) then 
+numbers of bathrooms are not a significant predictor for cost for 4 nights.*
+
+```{r regressionmodel3c_beds}
+
+model3c <- lm(price_4_nights ~ beds, data = listings)
+msummary(model3c)
+
+```
+
+*t-stat value is greater than the 2% and p-value is less than 5% then we can 
+reject the hypothesis of no difference between variables. An extra bed
+increase the price by 92.5.*
+*The total variability explained by this model is very low (only 0.4%) then 
+numbers of bathrooms are not a significant predictor for cost for 4 nights.*
+
+```{r regressionmodel3d_accommodates}
+
+model3d <- lm(price_4_nights ~ accommodates, data = listings)
+msummary(model3d)
+
+```
+
+*t-stat value is greater than the 2% and p-value is less than 5% then we can 
+reject the hypothesis of no difference between variables. An extra accommodates
+increase the price by 95.7.*
+*The total variability explained by this model is very low (only 0.6%) then 
+numbers of bathrooms are not a significant predictor for cost for 4 nights.*
+
 Do superhosts (host_is_superhost) command a pricing premium, after controlling for other variables?
-Most owners advertise the exact location of their listing (is_location_exact == TRUE), while a non-trivial proportion don't. After controlling for other variables, is a listing�s exact location a significant predictor of price_4_nights?
-For all cities, there are 3 variables that relate to neighbourhoods: neighbourhood, neighbourhood_cleansed, and neighbourhood_group_cleansed. There are typically more than 20 neighbourhoods in each city, and it wouldn't make sense to include them all in your model. Use your city knowledge, or ask someone with city knowledge, and see whether you can group neighbourhoods together so the majority of listings falls in fewer (5-6 max) geographical areas. You would thus need to create a new categorical variabale neighbourhood_simplified and determine whether location is a predictor of price_4_nights
-What is the effect of cancellation_policy on price_4_nights, after we control for other variables?
+
+```{r regressionmodel4_host_is_superhost}
+
+listings%>%
+  group_by(host_is_superhost)%>%
+  summarise(avg_price=mean(price_4_nights))
+
+model4 <- lm(price_4_nights ~ host_is_superhost, data = listings)
+msummary(model4)
+
+```
+
+*The superhosts do not command a pricing premium: mean value of cost for
+4 nights is higher for those who are not superhosts.*
+*In addition t-stat value is lower than the 2% and p-value is above than 5% 
+then we can accept the hypothesis of no difference between variables. The 
+condition of being a superhost decrease the price of the room by 112.2 respect 
+if the host is not a superhost.*
+*The total variability explained by this model is very low (only 0.04%) then 
+numbers of bathrooms are not a significant predictor for cost for 4 nights.*
+
+## to be deleted
+*Most owners advertise the exact location of their listing (is_location_exact == TRUE), while a non-trivial proportion don't. After controlling for other variables, is a listing�s exact location a significant predictor of price_4_nights?*
+
+## to be deleted
+*For all cities, there are 3 variables that relate to neighbourhoods: neighbourhood, neighbourhood_cleansed, and neighbourhood_group_cleansed. There are typically more than 20 neighbourhoods in each city, and it wouldn't make sense to include them all in your model. Use your city knowledge, or ask someone with city knowledge, and see whether you can group neighbourhoods together so the majority of listings falls in fewer (5-6 max) geographical areas.You would thus need to create a new categorical variabale neighbourhood_simplified and determine whether location is a predictor of price_4_nights*
+
+Determine whether location is a predictor of price_4_nights
+
+```{r regressionmodel6_location}
+
+listings<-listings%>%
+  mutate(neighbourhood_simplified=neighbourhood_cleansed)
+
+model6 <- lm(price_4_nights ~ neighbourhood_simplified, data = listings)
+msummary(model6)
+
+```
+
+*For some type of neighborhood (i.e., Private room in condo and Private room in 
+rental unit) t-stat value is greater than the 2% and p-value is less than 5% 
+then we can reject the hypothesis of no difference between variables. For 
+the other types of property (Entire rental unit and Other), 
+*t-stat value is lower than the 2% and p-value is above 5% then we can accept 
+the hypothesis of no difference between variables.*
+*In addition, an additional unit in some neighborhood increase the price
+(i.e., Navile by 168, Porto - Saragozza by 190, San Donato - San Vitale by 164,
+Santo Stefano by 179, Savena by 361) respect to Borgo Panigale - Reno.*
+*The total variability explained by this model is very low (only 0.07%) then 
+property types is not a significant predictor for cost for 4 nights.*
+
+## to be deleted
+*What is the effect of cancellation_policy on price_4_nights, after we control 
+for other variables?*
+
