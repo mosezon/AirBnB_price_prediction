@@ -85,7 +85,7 @@ library(huxtable)
 ```{r cities_groups, message=FALSE, warning=FALSE}
 
 listings <- vroom("http://data.insideairbnb.com/italy/emilia-romagna/bologna/2022-06-11/data/listings.csv.gz")%>% 
-      #drop variables that contain 'scrape' in their column name
+  #drop variables that contain 'scrape' in their column name
   select(- contains("scrape"))
 
 listings <- listings %>% 
@@ -123,11 +123,11 @@ print(paste("List of the variables that are numbers"))
 
 i=1
 for(i in 1:ncol(listings)) {       # for-loop over columns
-   if (is.numeric(listings[[i]]) == TRUE)
-   {
+  if (is.numeric(listings[[i]]) == TRUE)
+  {
     print(colnames(listings[i]))
   }
- }
+}
 
 ```
 
@@ -144,10 +144,10 @@ result <- apply(listings, 2, function(x) length(unique(x)))
 print(paste("List of the variables with less than ",maxElements, "elements"))
 
 for(i in 1:ncol(listings)) {       # for-loop over columns
- if(result[colnames(listings)[i]] < maxElements)
- {
-   print(colnames(listings)[i])
- }
+  if(result[colnames(listings)[i]] < maxElements)
+  {
+    print(colnames(listings)[i])
+  }
 }
 
 ```
@@ -210,8 +210,8 @@ listings %>%
   geom_col() + 
   theme_classic() +
   labs(title = "Median price in Bologna",
-        subtitle = "",
-        caption = "Source: http://data.insideairbnb.com/italy/emilia-romagna/bologna/2022-06-11/data/listings.csv.gz") +
+       subtitle = "",
+       caption = "Source: http://data.insideairbnb.com/italy/emilia-romagna/bologna/2022-06-11/data/listings.csv.gz") +
   theme(plot.caption = element_text(hjust= 1),
         axis.title.x = element_blank(), 
         axis.title.y = element_blank())
@@ -224,8 +224,8 @@ listings %>%
   geom_col() + 
   theme_classic() +
   labs(title = "Number of accomodations in Bologna", 
-        subtitle = "", 
-        caption = "Source: http://data.insideairbnb.com/italy/emilia-romagna/bologna/2022-06-11/data/listings.csv.gz") +
+       subtitle = "", 
+       caption = "Source: http://data.insideairbnb.com/italy/emilia-romagna/bologna/2022-06-11/data/listings.csv.gz") +
   theme(plot.caption = element_text(hjust= 1), 
         axis.title.x = element_blank(), #
         axis.title.y = element_blank())
@@ -235,8 +235,8 @@ listings %>%
   ggplot(aes(price,fill=neighbourhood_cleansed)) + 
   geom_histogram(binwidth = 10) +
   labs(title = "Distribution of price", 
-        subtitle = "", 
-        caption = "Source: http://data.insideairbnb.com/italy/emilia-romagna/bologna/2022-06-11/data/listings.csv.gz") + 
+       subtitle = "", 
+       caption = "Source: http://data.insideairbnb.com/italy/emilia-romagna/bologna/2022-06-11/data/listings.csv.gz") + 
   theme(plot.caption = element_text(hjust= 1), 
         axis.title.x = element_blank(), 
         axis.title.y = element_blank()) +
@@ -247,33 +247,33 @@ listings %>%
   filter(number_of_reviews>50) %>% 
   ggplot(aes(review_scores_rating, fill = neighbourhood_cleansed)) +
   geom_density(position = "stack", alpha = 0.4) +
-   labs(title = "Ratings with number of reviews more than 50", 
-        subtitle = "", 
-        caption = "Source: http://data.insideairbnb.com/italy/emilia-romagna/bologna/2022-06-11/data/listings.csv.gz") + 
+  labs(title = "Ratings with number of reviews more than 50", 
+       subtitle = "", 
+       caption = "Source: http://data.insideairbnb.com/italy/emilia-romagna/bologna/2022-06-11/data/listings.csv.gz") + 
   theme(plot.caption = element_text(hjust= 1), 
         axis.title.x = element_blank(), 
         axis.title.y = element_blank()) +
   scale_fill_discrete(name = "Neighbourhood")
-  
+
 ```
 
 *There are the following correlations (\>0.5) among variables:*
 
 -   *calculated_host_listings_count,
-    calculated_host_listings_count_entire_homes,*
+calculated_host_listings_count_entire_homes,*
 
 -   *bedrooms, beds, accommodates,*
 
 -   *availability_30, availability_60, availability_90,*
 
 -   *review_scores_rating, review_scores_accuracy,
-    review_scores_cleanliness, review_scores_checkin,
-    review_scores_communication, review_scores_value,*
+review_scores_cleanliness, review_scores_checkin,
+review_scores_communication, review_scores_value,*
 
 *There are the following linear correlations:*
 
 -   *calculated_host_listings_count,
-    calculated_host_listings_count_entire_homes*
+calculated_host_listings_count_entire_homes*
 
 ## Handling missing values (NAs)
 
@@ -312,6 +312,7 @@ listings <- listings %>%
 listings %>%
   count(property_type, prop_type_simplified) %>%
   arrange(desc(n))  
+
 ```
 
 What are the most common values for the variable minimum_nights?
@@ -404,7 +405,7 @@ g1 <- listings %>%
   ggplot(aes(price_4_nights)) + 
   geom_histogram(binwidth = 10) +
   labs(title = "Distribution of price of 4 nights", 
-        subtitle = "") + 
+       subtitle = "") + 
   theme(plot.caption = element_text(hjust= 1), 
         axis.title.x = element_blank(), 
         axis.title.y = element_blank())
@@ -414,12 +415,12 @@ g2 <- listings %>%
   ggplot(aes(log(price_4_nights))) + 
   geom_histogram(binwidth = 10) +
   labs(title = "Distribution of log(price) of 4 nights", 
-        subtitle = "", 
-        caption = "Source: http://data.insideairbnb.com/italy/emilia-romagna/bologna/2022-06-11/data/listings.csv.gz") + 
+       subtitle = "", 
+       caption = "Source: http://data.insideairbnb.com/italy/emilia-romagna/bologna/2022-06-11/data/listings.csv.gz") + 
   theme(plot.caption = element_text(hjust= 1), 
         axis.title.x = element_blank(), 
         axis.title.y = element_blank())
-  
+
 g1+g2
 ```
 
@@ -538,7 +539,7 @@ listings<-listings%>%
          n_bathrooms=ifelse(test=n_bathrooms=="Pri",
                             yes="0.5",
                             no=n_bathrooms),
-  n_bathrooms = parse_number(n_bathrooms))
+         n_bathrooms = parse_number(n_bathrooms))
 
 model3a <- lm(log(price_4_nights) ~ n_bathrooms, data = listings)
 msummary(model3a)
@@ -705,7 +706,7 @@ the adjusted R2R2, and the Residual Standard Error.
 huxreg(list("Model1" = model1, "Model2b" = model2b),
        statistics = c('Adj. R squared' = 'adj.r.squared', 
                       'Residual SE' = 'sigma'), 
-                 bold_signif = 0.05,
+       bold_signif = 0.05,
        stars = NULL) %>% 
   set_caption('Comparison of models')
 
