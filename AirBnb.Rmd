@@ -52,33 +52,6 @@ knit_hooks$set(output = function(x, options) {
 
 # R Project
 
-## Introduction
-
-*Short description about members*
-
-#### Davide Mosezon
-
-Born in Bologna in 1988 I'm a RFID Specialist in Lab ID Srl
-
-#### Federica Mori
-
-I am Italian, born in Mantova in 1986. I've working within innovation
-for more than 10 years. Now I'm an Innovation Manager at Confindustria
-Emilia-Romagna Ricerca.
-
-#### Daniel Mota De Carvalho
-
-I am Brazilian, and lived in different places there and Europe as well.
-My background is in marketing and sales have been working in FMCG companies
-for the last 20 years.
-Now I am challenging myself to learn business analytics and enter a new career path.
-
-#### Virgínia Mendonça
-
-I am Brazilian and have been living in EU the latest 10 years. I work
-with database management systems, most experienced in Sql Server and
-Postgres. Now adventuring myself in the data management world!
-
 ```{r load-libraries, echo=FALSE}
 
 library(tidyverse) # the usual stuff: dplyr, readr, and other goodies
@@ -101,11 +74,13 @@ library(kableExtra)
 library(performance)
 library(patchwork)
 library(formattable)
+library(car)
+library(performance)
+library(huxtable)
+
 ```
 
 ## Exploratory Data Analysis
-
-*Add a short description about what data are and where come from*
 
 ```{r cities_groups, message=FALSE, warning=FALSE}
 
@@ -119,7 +94,7 @@ listings <- listings %>%
 ```
 
 ```{r EDA_1, echo=FALSE}
-#glimpse(listings)
+glimpse(listings)
 skim(listings)
 
 ```
@@ -182,25 +157,7 @@ support a linear relationship between variables? Do any of the
 correlations appear to be conditional on the value of a categorical
 variable?
 
-Exploring correlations with parameters of house
-```{r exampleEDA_correlations_1}
-listings%>%
-  select(price, accommodates, bedrooms, beds, room_type)%>%
-  ggpairs(alpha = 0.3)
-```
-
-
 ```{r EDA_correlations}
-
-# finding significant correlations - to be completed
-# listings %>%
-#   filter(number_of_reviews>50 & minimum_nights < 4 & price < 250) %>%
-#   select(minimum_nights,price,review_scores_rating, accommodates, availability_365,reviews_per_month) %>%
-#   ggpairs(alpha = 0.3)
-
-
-# to be completed by filter the values for not so narrowed curves
-
 # exploring correlations with type of hosts 
 listings%>%
   select(price, host_id, host_response_time, host_is_superhost, calculated_host_listings_count, calculated_host_listings_count_entire_homes, calculated_host_listings_count_private_rooms, calculated_host_listings_count_shared_rooms)%>%
@@ -315,7 +272,8 @@ listings %>%
 
 *There are the following linear correlations:*
 
--   *\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_*
+-   *calculated_host_listings_count,
+    calculated_host_listings_count_entire_homes*
 
 ## Handling missing values (NAs)
 
@@ -672,27 +630,6 @@ of the room by 0.03 respect if the host is not a superhost.*
 then numbers of bathrooms are not a significant predictor for cost for 4
 nights.*
 
-\-\-\-\-\--
-
-## to be deleted (we do not have those variables)
-
-Most owners advertise the exact location of their listing
-(is_location_exact == TRUE), while a non-trivial proportion don't. After
-controlling for other variables, is a listing�s exact location a
-significant predictor of price_4\_nights?
-
-For all cities, there are 3 variables that relate to neighbourhoods:
-neighbourhood, neighbourhood_cleansed, and neighbourhood_group_cleansed.
-There are typically more than 20 neighbourhoods in each city, and it
-wouldn't make sense to include them all in your model. Use your city
-knowledge, or ask someone with city knowledge, and see whether you can
-group neighbourhoods together so the majority of listings falls in fewer
-(5-6 max) geographical areas.You would thus need to create a new
-categorical variabale neighbourhood_simplified and determine whether
-location is a predictor of price_4\_nights
-
-\-\-\-\-\-\-\--
-
 Determine whether location is a predictor of price_4\_nights
 
 ```{r regressionmodel6_location}
@@ -723,7 +660,73 @@ Panigale - Reno.*
 then property types is not a significant predictor for cost for 4
 nights.*
 
-## to be deleted
+## Diagnostics, collinearity, summary tables
 
-*What is the effect of cancellation_policy on price_4\_nights, after we
-control for other variables?*
+Check the residuals, using performance::check_model(model_x) 
+```{r summary_tables_1, echo=TRUE}
+check_model(model1)
+
+vif(model1)
+
+```
+*Model1 doesn't suffer from collinearity*
+
+As you start building models with more explanatory variables, make sure you use
+car::vif(model_x) to calculate the Variance Inflation Factor (VIF) for
+your predictors and determine whether you have colinear variables. A
+general guideline is that a VIF larger than 5 or 10 is large, and your
+model may suffer from collinearity. Remove the variable in question and
+run your model again without it. 
+```{r summary_tables_2, echo=TRUE}
+check_model(model2)
+
+vif(model2)
+
+model2b <- lm(log(price_4_nights) ~  number_of_reviews + review_scores_rating, data = listings)
+msummary(model2b)
+
+```
+*Model2 suffer from collinearity(prop_type_simplified, room_type).* 
+*We create a new model without the two variables*
+
+Create a summary table, using huxtable
+(<https://fda-bbs.netlify.app/example/modelling_side_by_side_tables/>)
+that shows which models you worked on, which predictors are significant,
+the adjusted R2R2, and the Residual Standard Error.
+```{r summary_tables_3, echo=TRUE}
+
+huxreg(list("Model1" = model1, "Model2b" = model2b),
+       statistics = c('R squared' = 'r.squared',
+                      'Adj. R squared' = 'adj.r.squared', 
+                      'Residual SE' = 'sigma'), 
+                 bold_signif = 0.05,
+       stars = NULL) %>% 
+  set_caption('Comparison of models')
+
+```
+*The variables in bold denote level of significance*
+
+## Team members
+
+### Davide Mosezon
+
+Born in Bologna in 1988 I'm a RFID Specialist in Lab ID Srl
+
+### Federica Mori
+
+I am Italian, born in Mantova in 1986. I've working within innovation
+for more than 10 years. Now I'm an Innovation Manager at Confindustria
+Emilia-Romagna Ricerca.
+
+### Daniel Mota De Carvalho
+
+I am Brazilian, and lived in different places there and Europe as well.
+My background is in marketing and sales have been working in FMCG
+companies for the last 20 years. Now I am challenging myself to learn
+business analytics and enter a new career path.
+
+### Virgínia Mendonça
+
+I am Brazilian and have been living in EU the latest 10 years. I work
+with database management systems, most experienced in Sql Server and
+Postgres. Now adventuring myself in the data management world!
