@@ -662,49 +662,56 @@ nights.*
 
 ## Diagnostics, collinearity, summary tables
 
-Check the residuals, using performance::check_model(model_x) 
+Check the residuals, using performance::check_model(model_x)
+
 ```{r summary_tables_1, echo=TRUE}
 check_model(model1)
-
-vif(model1)
-
-```
-*Model1 doesn't suffer from collinearity*
-
-As you start building models with more explanatory variables, make sure you use
-car::vif(model_x) to calculate the Variance Inflation Factor (VIF) for
-your predictors and determine whether you have colinear variables. A
-general guideline is that a VIF larger than 5 or 10 is large, and your
-model may suffer from collinearity. Remove the variable in question and
-run your model again without it. 
-```{r summary_tables_2, echo=TRUE}
 check_model(model2)
 
+```
+
+As you start building models with more explanatory variables, make sure
+you use car::vif(model_x) to calculate the Variance Inflation Factor
+(VIF) for your predictors and determine whether you have colinear
+variables. A general guideline is that a VIF larger than 5 or 10 is
+large, and your model may suffer from collinearity. Remove the variable
+in question and run your model again without it.
+
+```{r summary_tables_2, echo=TRUE}
+
+print("Model 1 Variance Inflation Factor")
+vif(model1)
+
+print("Model 2 Variance Inflation Factor")
 vif(model2)
 
+print("Summary of the new model")
 model2b <- lm(log(price_4_nights) ~  number_of_reviews + review_scores_rating, data = listings)
 msummary(model2b)
 
 ```
-*Model2 suffer from collinearity(prop_type_simplified, room_type).* 
-*We create a new model without the two variables*
+
+*Model1 doesn't suffer from collinearity*
+*Model2 suffer from collinearity (prop_type_simplified, room_type) then we
+create a new model without the two variables*
 
 Create a summary table, using huxtable
 (<https://fda-bbs.netlify.app/example/modelling_side_by_side_tables/>)
 that shows which models you worked on, which predictors are significant,
 the adjusted R2R2, and the Residual Standard Error.
+
 ```{r summary_tables_3, echo=TRUE}
 
 huxreg(list("Model1" = model1, "Model2b" = model2b),
-       statistics = c('R squared' = 'r.squared',
-                      'Adj. R squared' = 'adj.r.squared', 
+       statistics = c('Adj. R squared' = 'adj.r.squared', 
                       'Residual SE' = 'sigma'), 
                  bold_signif = 0.05,
        stars = NULL) %>% 
   set_caption('Comparison of models')
 
 ```
-*The variables in bold denote level of significance*
+
+*The variables in bold are significant predictors of the logarithm of the price for 4 night.*
 
 ## Team members
 
